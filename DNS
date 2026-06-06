@@ -1,0 +1,61 @@
+# Настраиваем чо надо
+nano /etc/bind/named.conf
+
+listen on { 0.0.0.0; };
+forwarders { 77.88.8.8; };
+allow query { any; };
+
+# Настраиваем зоны
+nano /etc/bind/rfc1912.conf
+
+
+zone "chonado.local" {
+ type: master;
+ file: "chonado.local";
+};
+
+zone "13.16.172.in-addr.arpa" {
+ type: master;
+ file: "/etc/bind/zone/13.16.172.in-addr.arpa";
+};
+
+# Создание зоны тюремные
+cat /etc/bind/zone/localhost > /etc/bind/zone/chonado.local && chow root:named /etc/bind/zone/chonado.local
+cat /etc/bind/zone/localhost > /etc/bind/zone/13.16.172.in-addr.arpa && chow root:named /etc/bind/zone/13.16.172.in-addr.arpa
+
+nano /etc/bind/zone/chonado.local
+
+$TTL    86400
+@       IN      SOA     srv.chonado.local. root.chonado.local. (
+                              2026060601 ; Serial
+                              3600       ; Refresh
+                              1800       ; Retry
+                              604800     ; Expire
+                              86400      ; Minimum TTL
+)
+
+
+@       IN      NS      srv.chonado.local.
+
+srv     IN      A       172.16.13.100
+router  IN      A       172.16.13.1
+pc1     IN      A      172.16.13.50
+server    IN    CNAME    srv
+
+
+nano /etc/bind/zone/13.16.172.in-addr.arpa
+
+$TTL 86400
+@       IN      SOA    srv.chonado.local. root.chonado.locall. (
+                                2026060801 ; Serial
+                                28800      ; Refresh
+                                7200       ; Retry
+                                604800     ; Expire
+                                86400     ; Minimum TTL
+                                )
+@       IN      NS      srv.chonado.local.
+
+1       IN      PTR     router.chonado.local.
+100      IN      PTR     srv.chonado.local.
+
+systemctl restart bind
