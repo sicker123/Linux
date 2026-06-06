@@ -1,0 +1,22 @@
+# Debian
+nano /etc/network/interface
+
+auto tun30
+iface tun0 inet static
+    address 10.0.0.1
+    netmask 255.255.255.252
+    mode gre
+    local 172.16.13.2
+    endpoint 172.16.26.2
+    ttl 255
+
+# Altlinux
+mkdir  /etc/net/iface/tun30
+nano /etc/net/iface/tun30/options
+
+TYPE=iptun 
+TUNTYPE=gre
+TUNOPTIONS='ttl 64'
+TUNREMOTE=172.16.26.2
+TUNLOCAL=172.16.13.2
+HOST='ens18'
