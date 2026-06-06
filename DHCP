@@ -1,0 +1,25 @@
+apt install isc-dhcp-server
+nano /etc/default/isc-dhcp-server
+INTERFACESv4="ens33"
+nano /etc/dhcp/dhcpd.conf
+
+option domain-name "localhost.localdomain";
+option domain-name-servers 100.100.100.1;
+default-lease-time 32400;
+max-lease-time 604800;
+log-facility local7;
+authoritative;
+
+subnet 100.100.100.0 netmask 255.255.255.0 {
+  range 100.100.100.2 100.100.100.250;
+  option broadcast-address 100.100.100.255;
+  option routers 100.100.100.1;
+}
+
+host mini-pc { 
+    hardware ethernet 06:e0:4c:6a:04:14;
+    fixed-address 100.100.100.101;
+}
+
+systemctl start isc-dhcp-server
+systemctl enable isc-dhcp-server
