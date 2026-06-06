@@ -1,0 +1,54 @@
+apt install rsyslog-mysql
+nano /etc/rsyslog.conf/rules.conf
+
+module(load="imudp")
+input(type="imudp" port="514")
+
+module(load="imtcp")
+input(type="imtcp" port="514")
+
+module(load="ommysql")
+
+# R-SRV
+if $hostname == 'R-SRV' then {
+    action(type="ommysql" server="127.0.0.1" db="Syslog" user="rsyslog" pass="rsyslog_pass")
+    stop 
+}
+
+# L-SRV
+if $hostname == 'L-SRV' then {
+    if $syslogfacility-text == 'authpriv' then {
+        action(type="omfile" file="/opt/error/L-SRV/auth.log")
+    }
+    stop
+}
+
+# L-FW 
+if $hostname == 'L-FW' then {
+    if $syslogfacility-text == 'auth' or $syslogpriority-text == 'err' then {
+        action(type="omfile" file="/opt/error/L-FW/super.log")
+    }
+    stop
+}
+
+# L-RTR-A 
+if $hostname == 'L-RTR-A' then {
+    if $syslogpriority-text == 'err' then {
+        action(type="omfile" file="/opt/error/L-RTR-A/error.log")
+    }
+    stop
+}
+
+# L-RTR-B 
+if $hostname == 'L-RTR-B' then {
+    if $syslogfacility-text == 'auth' or $syslogfacility-text == 'authpriv' then {
+        action(type="omfile" file="/opt/error/L-RTR-B/auth.log")
+    }
+    stop
+}
+
+systemctl restart rsyslog
+   
+
+
+
