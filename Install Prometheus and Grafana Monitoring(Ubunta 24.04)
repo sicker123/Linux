@@ -110,6 +110,8 @@ sudo apt install -y grafana
 sudo systemctl status grafana-server
 
 
-После установки заходим на сервер по порту 3000 нажимаем connection->Data Sources и ищиим prometheus, после чего в url указывем http://localhost:9090 и сохраняем и все в жизни хорошо, делайте че хотите
+После установки заходим на сервер по порту 3000 нажимаем connection->Data Sources и ищиим prometheus, после чего в url указывем http://localhost:9090 и сохраняем.
+Потом заходим в dashboard->new->import и прописываем 1860, затем нажимаем load
+и все в жизни хорошо, делайте че хотите
 
 
