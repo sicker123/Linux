@@ -48,7 +48,11 @@ if $hostname == 'L-RTR-B' then {
 }
 
 systemctl restart rsyslog
-   
+
+# На клиенте
+nano /etc/rsyslog.conf
+*.*@192.168.1.1:514 # Отправка логов по UDP
+*.*@@192.168.1.1:514 # Отправка логов по TCP
 
 
 
