@@ -58,4 +58,9 @@ $TTL 86400
 1       IN      PTR     router.chonado.local.
 100      IN      PTR     srv.chonado.local.
 
+# На всех хостах где нужен DNS
+nano /etc/resolve.com
+nameserver 172.16.13.100
+search chonado.local 
+
 systemctl restart bind
