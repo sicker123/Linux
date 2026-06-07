@@ -1,0 +1,39 @@
+Таблицы
+filter - отвечает за блокировку и разрешение
+nat - проброс портов, ну или трансляция адресов
+mangle - модификация пакетов (увеличить ttl например)
+
+Цепочки
+INPUT - входит куда надо
+OUTPUT - выходит откуда надо
+FORWARD - если надо чтобы трафик шел сквозь кого надо (заходит через одно, выходит через другое)
+PREROUTING - обработка пакета сразу после его получчения (используется в nat, например для изменения адреса назначения)
+POSTROUTING - обрабатывает пакет перед отправкой (используется в nat, чаще всего используется для маскарада)
+
+
+apt update && apt upgrade
+apt install iptables iptables-persistent
+
+-A INPUT -i lo -j ACCEPT
+-A OUTPUT -o lo -j ACCEPT# Разрешить внутрение шняги
+
+-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT 
+-A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT #  Разрешить текущие соединения
+
+-A INPUT -p icmp -j ACCEPT # Разрешить пинг
+-A INPUT -p "Укажите ваш протокол" -j ACCEPT # Разрешить протокол
+
+-A INPUT -p tcp -s ВАШ_IP --dport 22 -j ACCEPT # Разрешить SSH для пользователя
+
+-A INPUT -p tcp --dport "Укажите ваш порт" -j ACCEPT # Открыть порт
+
+-A INPUT -p tcp -m multiport --dports 22,80,443 -j ACCEPT # Открыть несколько портов одной командой
+
+-A INPUT -p tcp --dport "Укажите ваш порт" -j DROP # Закрыть порт
+
+-A INPUT -p tcp ! -s 192.168.1.100 --dport 22 -j DROP # Разрешить SSH только одному пользователю (знак ! используется для инверсии)
+
+-A INPUT -p tcp -j DROP
+-A FORWARD -p tcp -j DROP
+-A INPUT -p udp -j DROP
+-A FORWARD -p udp -j DROP # СТРОГО ПОСЛЕ НАСТРОЙКИ ВСЕХ НУЖНЫХ ВАМ ПРАВИЛ!!!
