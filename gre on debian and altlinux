@@ -2,13 +2,13 @@
 nano /etc/network/interface
 
 auto tun30
-iface tun0 inet static
-    address 10.0.0.1
-    netmask 255.255.255.252
-    mode gre
-    local 172.16.13.2
-    endpoint 172.16.26.2
-    ttl 255
+iface tun30 inet tunnel
+address 10.0.0.1
+netmask 255.255.255.252
+mode gre
+local 172.16.13.2
+endpoint 172.16.26.2
+ttl 255
 
 # Altlinux
 mkdir  /etc/net/iface/tun30
