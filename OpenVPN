@@ -1,0 +1,84 @@
+apt update
+apt install openvpn easy-rsa -y
+
+make-cadir ~/openvpn-ca
+cd ~/openvpn-ca
+
+./easyrsa init-pki
+./easyrsa build-ca nopass
+./easyrsa gen-dh
+./easyrsa build-server-full server nopass
+openvpn --genkey secret ta.key
+./easyrsa build-client-full client1 nopass
+
+cp pki/ca.crt pki/dh.pem pki/issued/server.crt pki/private/server.key ta.key /etc/openvpn/server/
+
+
+nano /etc/openvpn/server/server.conf
+
+_______________________________________________
+dev tun
+proto tcp
+port 1234
+ca ca.crt
+cert server.crt
+key server.key
+dh dh.pem
+
+topology subnet
+server 10.8.0.0 255.255.255.0
+tls-auth ta.key 0
+
+
+push "route 172.16.X.0 255.255.255.0"
+
+keepalive 10 120
+persist-key
+persist-tun
+status /var/log/openvpn/openvpn-status.log
+log-append /var/log/openvpn/openvpn.log
+verb 3
+______________________________________________
+
+mkdir ~/vpn-client-files
+nano ~/vpn-client-files/client.ovpn
+
+_______________________________________________
+client
+dev tun
+proto tcp
+
+remote 172.16.13.110 1234
+
+resolv-retry infinite
+nobind
+
+persist-key
+persist-tun
+remote-cert-tls server
+
+ca ca.crt
+cert client1.crt
+key client1.key
+tls-auth ta.key 1
+
+verb 3
+______________________________________________
+
+systemctl enable --now openvpn-server@server
+
+mkdir ~/vpn-client-files
+cp ~/openvpn-ca/pki/ca.crt ~/vpn-client-files/
+cp ~/openvpn-ca/pki/issued/client1.crt ~/vpn-client-files/
+cp ~/openvpn-ca/pki/private/client1.key ~/vpn-client-files/
+cp /etc/openvpn/server/ta.key ~/vpn-client-files/
+
+zip -r vpn-client-files.zip ~/vpn-client-files
+
+scp ~/vpn-client-files.zip user@192.168.0.1:D: 
+or 
+scp ~/vpn-client-files.zip root@192.168.0.1:/etc/openvpn/server/
+
+
+
+
